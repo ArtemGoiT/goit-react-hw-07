@@ -1,13 +1,7 @@
-import {
-  combineSlices,
-  createSelector,
-  createSlice,
-  isAnyOf,
-} from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
-import { addContact, deleteContact, fetchContacts } from "./contactsOps";
-import { produce } from "immer";
+import { createSelector, createSlice, isAnyOf } from "@reduxjs/toolkit";
+import { fetchContacts, addContact, deleteContact } from "./contactsOps";
 import { selectNameFilter } from "./filtersSlice";
+import toast from "react-hot-toast";
 
 const initialState = {
   contacts: {
@@ -18,28 +12,25 @@ const initialState = {
 };
 
 export const contactsSlice = createSlice({
-  name: "contact",
+  name: "contacts",
   initialState,
-  reducers: {},
-
+  selectors: {
+    selectContacts: (state) => state.contacts.items,
+    selectIsLoading: (state) => state.contacts.isLoading,
+    selectIsError: (state) => state.contacts.isError,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchContacts.fulfilled, (state, { payload }) => {
-        return produce(state, (draftState) => {
-          draftState.contacts.items = payload;
-        });
+        state.contacts.items = payload;
       })
       .addCase(addContact.fulfilled, (state, { payload }) => {
-        return produce(state, (draftState) => {
-          draftState.contacts.items.push(payload);
-        });
+        state.contacts.items.push(payload);
       })
       .addCase(deleteContact.fulfilled, (state, { payload }) => {
-        return produce(state, (draftState) => {
-          draftState.contacts.items = draftState.contacts.items.filter(
-            (items) => items.id !== payload.id
-          );
-        });
+        state.contacts.items = state.contacts.items.filter(
+          (item) => item.id !== payload.id
+        );
       })
       .addMatcher(
         isAnyOf(
@@ -48,13 +39,20 @@ export const contactsSlice = createSlice({
           deleteContact.pending
         ),
         (state) => {
-          return produce(state, (draftState) => {
-            draftState.contacts.isLoading = true;
-            draftState.contacts.error = false;
-          });
+          state.contacts.isLoading = true;
+          state.contacts.isError = false;
         }
       )
-
+      .addMatcher(
+        isAnyOf(
+          fetchContacts.fulfilled,
+          addContact.fulfilled,
+          deleteContact.fulfilled
+        ),
+        (state) => {
+          state.contacts.isLoading = false;
+        }
+      )
       .addMatcher(
         isAnyOf(
           fetchContacts.rejected,
@@ -62,10 +60,9 @@ export const contactsSlice = createSlice({
           deleteContact.rejected
         ),
         (state) => {
-          return produce(state, (draftState) => {
-            draftState.contacts.isLoading = false;
-            draftState.contacts.error = true;
-          });
+          state.contacts.isLoading = false;
+          state.contacts.isError = true;
+          toast.error("This didn't work.");
         }
       );
   },
@@ -73,9 +70,11 @@ export const contactsSlice = createSlice({
 
 export const { selectContacts, selectIsLoading, selectIsError } =
   contactsSlice.selectors;
+
 export const selectFilteredContacts = createSelector(
   [selectContacts, selectNameFilter],
   (items, { name }) =>
     items.filter((item) => item.name.toLowerCase().includes(name.toLowerCase()))
 );
-export const contactsReducer = combineSlices.reducers;
+
+export const contactsReducer = contactsSlice.reducer;

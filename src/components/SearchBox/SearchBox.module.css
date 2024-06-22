@@ -1,25 +1,40 @@
 /* SearchBox.module.css */
-.title {
-  color: #333;
+
+.searchContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.searchContainer h2 {
+  margin-bottom: 10px;
   font-size: 1.5em;
-  margin-bottom: 0.5em;
-  text-align: left;
+  color: #333;
 }
 
-.input {
-  width: 100%;
-  padding: 0.5em;
+.searchContainer label {
+  margin-bottom: 5px;
   font-size: 1em;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition:
-    border-color 300ms,
-    box-shadow 300ms;
+  color: #666;
 }
 
-.input:focus {
-  border-color: #646cff;
-  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
-  outline: none;
+.searchContainer input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.searchContainer input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }

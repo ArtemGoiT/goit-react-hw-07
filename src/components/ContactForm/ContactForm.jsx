@@ -1,59 +1,89 @@
-import { useState } from "react";
+// ContactForm.jsx
+
+import { Field, Formik, Form, ErrorMessage } from "formik";
+import { nanoid } from "nanoid";
+import { useId } from "react";
 import { useDispatch } from "react-redux";
-import { addContact } from "../../redux/contactsSlice";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import * as yup from "yup";
+import { addContact } from "../../redux/contactsOps";
 import css from "./ContactForm.module.css";
 
-const ContactsForm = () => {
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+const initialValues = {
+  id: nanoid(),
+  name: "",
+  number: "",
+};
+
+const validationSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Name is required")
+    .min(3, "Name must be at least 3 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .trim(),
+  number: yup
+    .string()
+    .required("Number is required")
+    .matches(/^[\d-]+$/, "Number must contain only digits or hyphens")
+    .min(3, "Number must be at least 3 characters")
+    .max(12, "Number cannot exceed 12 characters"),
+});
+
+export const ContactForm = () => {
+  const nameFieldId = useId();
+  const numberFieldId = useId();
+
   const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (name.trim() === "" || phoneNumber.trim() === "") {
-      toast.error("Name and phone number are required.");
-    } else {
-      dispatch(addContact({ name, phoneNumber }));
-      toast.success("Contact added successfully!");
-      setName("");
-      setPhoneNumber("");
-    }
-  };
-
-  const handlePhoneNumberChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      // Проверка на только цифры
-      setPhoneNumber(value);
-    }
+  const handleSubmit = (values, actions) => {
+    dispatch(addContact(values));
+    actions.resetForm();
   };
 
   return (
-    <div>
-      <ToastContainer />
-      <form onSubmit={handleSubmit} className={css.form}>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
-          className={css.input}
-        />
-        <input
-          type="text"
-          value={phoneNumber}
-          onChange={handlePhoneNumberChange}
-          placeholder="Phone Number"
-          className={css.input}
-        />
-        <button type="submit" className={css.btn}>
-          Add Contact
-        </button>
-      </form>
+    <div className={css.subCard}>
+      <h2>Add a person</h2>
+      <div className={css.contactForm}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          <Form>
+            <div>
+              <label htmlFor={nameFieldId}>Name</label>
+              <Field
+                type="text"
+                id={nameFieldId}
+                name="name"
+                placeholder="Enter name..."
+              />
+              <ErrorMessage
+                className={css.error}
+                name="name"
+                component="span"
+              />
+            </div>
+            <div>
+              <label htmlFor={numberFieldId}>Number</label>
+              <Field
+                type="text"
+                id={numberFieldId}
+                name="number"
+                placeholder="Enter phone number..."
+              />
+              <ErrorMessage
+                className={css.error}
+                name="number"
+                component="span"
+              />
+            </div>
+            <button type="submit">Add contact</button>
+          </Form>
+        </Formik>
+      </div>
     </div>
   );
 };
 
-export default ContactsForm;
+export default ContactForm;

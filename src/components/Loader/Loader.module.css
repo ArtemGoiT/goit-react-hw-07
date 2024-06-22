@@ -1,0 +1,18 @@
+/* Loader.module.css */
+
+.loaderWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* Adjust the height as needed */
+  background-color: #f0f0f0; /* Optional: Add background color */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  padding: 10px; /* Optional: Add padding */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
+}
+
+.rotatingLines {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+}
